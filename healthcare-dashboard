@@ -1,0 +1,21 @@
+# 🏥 Healthcare Analytics Dashboard
+
+A full-stack web application for managing and analyzing patient data in a healthcare environment.
+
+## 🔧 Tech Stack
+- Backend: Django, REST Framework, PostgreSQL
+- Frontend: AngularJS, Bootstrap, JavaScript
+- DevOps: Docker, Jenkins, AWS EC2
+- Testing: PyTest, Unittest
+
+## ✨ Features
+- RESTful APIs for patient and doctor data
+- Secure SSO login using SAML
+- Real-time data visualization with Angular
+- Integrated CI/CD pipeline for automated deployments
+
+## 🚀 Getting Started
+```bash
+git clone https://github.com/durga-karthik/healthcare-dashboard.git
+cd healthcare-dashboard
+docker-compose up
