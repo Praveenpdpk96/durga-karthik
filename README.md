@@ -15,6 +15,10 @@ RESTful API built with Django and PostgreSQL, deployed with Docker.
 
 ### 🔗 [Healthcare Dashboard](https://github.com/yourusername/project2)
 React + Flask dashboard for real-time health data, with JWT authentication.
+## 📷 Project Screenshot
+
+![Dashboard](https://github.com/Praveenpdpk96/durga-karthik/blob/main/Dashboard%20image.png?raw=true)
+
 
 ### 🔗 [Automation Scripts](https://github.com/yourusername/project3)
 Python-based automation for Jenkins CI/CD and AWS deployment.
