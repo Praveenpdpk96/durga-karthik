@@ -1,6 +1,6 @@
 # Durga Praveen Karthik Phanidharapu - GitHub Portfolio
 
-### 👨‍💻 Senior Python Full Stack Developer | Cloud-Native Architect | DevOps | Data Engineer
+### 👨‍💻 Senior Full Stack Developer | Cloud-Native Architect | DevOps | Data Engineer
 
 Welcome to my professional portfolio. With over 6 years of experience in full-stack development, cloud engineering, data pipelines, and DevOps, I build end-to-end software solutions for healthcare, retail, fintech, and manufacturing industries.
 
