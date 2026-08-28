@@ -5,10 +5,18 @@ services:
     plan: free
     healthCheckPath: /actuator/health
     envVars:
-      - key: DATABASE_URL
+      - key: DATABASE_HOST
         fromDatabase:
           name: career-intelligence-db
-          property: connectionString
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: career-intelligence-db
+          property: port
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: career-intelligence-db
+          property: database
       - key: DATABASE_USERNAME
         fromDatabase:
           name: career-intelligence-db
