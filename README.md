@@ -2,54 +2,49 @@
 
 A production-oriented full-stack portfolio project for job matching and application intelligence.
 
-The backend is built with **Java 21 + Spring Boot** and currently supports resume/job skill matching, persistent application tracking, lifecycle status management, and optional Kafka domain events.
+Built with **Java 21, Spring Boot, Angular, PostgreSQL, Kafka, Docker, and GitHub Actions**, the platform analyzes technical fit between a resume and job description and tracks applications through the hiring lifecycle.
+
+## Current Capabilities
+
+- Resume-to-job technical match scoring
+- Matched and missing skill identification
+- Actionable match summaries and recommendations
+- Persistent job application tracking
+- Hiring lifecycle status management
+- Optional Kafka domain events
+- Responsive Angular dashboard
+- Swagger/OpenAPI documentation
+- Automated backend tests and frontend builds in CI
 
 ## Architecture
 
 ```text
-                         +----------------------+
-                         |     Client / UI      |
-                         +----------+-----------+
-                                    |
-                                    v
-                         +----------------------+
-                         | Spring Boot REST API |
-                         +----+-------------+---+
-                              |             |
-                    +---------+--+       +--+----------------+
-                    | Matching   |       | Application       |
-                    | Service    |       | Tracking Service  |
-                    +------------+       +----+----------+---+
-                                              |          |
-                                              v          v
-                                        PostgreSQL     Kafka
-                                                        |
-                                                        v
-                                              Application Events
+Angular Dashboard
+       |
+       v
+Spring Boot REST API
+   |             |
+   v             v
+Match Engine   Application Service
+                  |          |
+                  v          v
+             PostgreSQL    Kafka
 ```
-
-Kafka publishing is feature-controlled. Local development can run without a broker, while Docker Compose enables the complete PostgreSQL + Kafka environment.
 
 ## Technology
 
-- Java 21
-- Spring Boot 3
-- Spring Web / Jakarta Validation
-- Spring Data JPA
-- PostgreSQL / H2
-- Apache Kafka
-- OpenAPI / Swagger UI
-- Spring Boot Actuator
-- JUnit 5 / Mockito / AssertJ
-- Maven
-- Docker / Docker Compose
-- GitHub Actions
+**Backend:** Java 21, Spring Boot 3, Spring Web, Validation, Spring Data JPA  
+**Frontend:** Angular 18, TypeScript  
+**Data:** PostgreSQL, H2  
+**Messaging:** Apache Kafka  
+**Platform:** Docker, Docker Compose, GitHub Actions  
+**Quality:** JUnit 5, Mockito, AssertJ, OpenAPI/Swagger, Actuator
 
 ## APIs
 
-### Resume / Job Match
+### Enhanced Resume / Job Analysis
 
-`POST /api/v1/matches`
+`POST /api/v1/matches/semantic`
 
 ```json
 {
@@ -58,88 +53,72 @@ Kafka publishing is feature-controlled. Local development can run without a brok
 }
 ```
 
-```json
-{
-  "score": 75,
-  "matchedSkills": ["java", "spring boot", "aws"],
-  "missingSkills": ["kafka"]
-}
-```
+The response includes a score, matched skills, missing skills, a summary, and actionable recommendations.
 
-### Track an Application
+> The current analysis engine is deterministic and explainable. A provider-backed LLM implementation is intentionally kept as a future integration rather than presenting rule-based matching as AI.
 
-`POST /api/v1/applications`
+### Application Tracking
 
-```json
-{
-  "company": "Example Corp",
-  "role": "Senior Software Engineer",
-  "jobUrl": "https://example.com/jobs/123",
-  "status": "APPLIED"
-}
-```
-
-`GET /api/v1/applications`
-
+`POST /api/v1/applications`  
+`GET /api/v1/applications`  
 `PATCH /api/v1/applications/{id}/status`
 
-```json
-{
-  "status": "INTERVIEW"
-}
-```
+Lifecycle states: `SAVED`, `APPLIED`, `ASSESSMENT`, `INTERVIEW`, `OFFER`, `REJECTED`, `WITHDRAWN`.
 
-Supported lifecycle states include `SAVED`, `APPLIED`, `ASSESSMENT`, `INTERVIEW`, `OFFER`, `REJECTED`, and `WITHDRAWN`.
+## Run the Backend
 
-## API Documentation
-
-After starting the application, Swagger UI is available at:
-
-`http://localhost:8080/swagger-ui.html`
-
-Health endpoint:
-
-`http://localhost:8080/actuator/health`
-
-## Run Locally
-
-For the lightweight H2 configuration:
+Lightweight local configuration using H2:
 
 ```bash
 mvn spring-boot:run
 ```
 
-For the complete PostgreSQL + Kafka stack:
+Complete PostgreSQL + Kafka stack:
 
 ```bash
 docker compose up --build
 ```
 
-Run tests:
+Swagger UI: `http://localhost:8080/swagger-ui.html`  
+Health: `http://localhost:8080/actuator/health`
+
+## Run the Angular Dashboard
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+The Angular development server proxies `/api` requests to the Spring Boot API on port `8080`.
+
+## Testing
 
 ```bash
 mvn test
+cd frontend && npm run build
 ```
+
+GitHub Actions automatically runs backend tests and validates the Angular production build.
 
 ## Event-Driven Workflow
 
-When Kafka events are enabled, application creation and status changes publish domain events to `career.application-events`. This creates a foundation for independent consumers such as analytics, notifications, recommendations, and audit processing without tightly coupling those capabilities to the application service.
+When Kafka events are enabled, application creation and status changes publish domain events to `career.application-events`. This provides an integration point for analytics, notifications, recommendations, and audit processing without coupling those capabilities to the core application service.
 
 ## Roadmap
 
 - [x] Spring Boot service foundation
 - [x] Resume/job skill matching API
-- [x] Input validation and API error handling
-- [x] Unit tests
-- [x] GitHub Actions CI
-- [x] Docker configuration
+- [x] Enhanced explainable match analysis
 - [x] PostgreSQL persistence
 - [x] Application tracking service
-- [x] Kafka application lifecycle events
+- [x] Kafka lifecycle events
+- [x] Angular dashboard
+- [x] Docker environment
+- [x] GitHub Actions CI
 - [x] OpenAPI / Swagger documentation
-- [ ] Resume document ingestion
-- [ ] AI-assisted semantic matching
-- [ ] Angular dashboard
+- [ ] Resume PDF/DOCX ingestion
+- [ ] Provider-backed LLM semantic analysis
 - [ ] Authentication and authorization
 - [ ] Metrics, tracing, and structured logging
 - [ ] Cloud deployment
