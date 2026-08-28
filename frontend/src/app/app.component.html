@@ -3,7 +3,7 @@
     <div>
       <p class="eyebrow">CAREER INTELLIGENCE</p>
       <h1>Turn job searching into a measurable engineering workflow.</h1>
-      <p class="subtitle">Analyze technical fit, identify missing skills, and track every application from first save to final decision.</p>
+      <p class="subtitle">Analyze technical fit, identify missing skills, get actionable recommendations, and track every application from first save to final decision.</p>
     </div>
     <div class="hero-badge"><span>●</span> Spring Boot + Angular</div>
   </header>
@@ -26,10 +26,14 @@
       <div class="result" *ngIf="matchResult">
         <div class="score"><span>{{ matchResult.score }}</span><small>/ 100</small></div>
         <div>
+          <p class="result-label">ANALYSIS</p>
+          <p class="analysis-summary">{{ matchResult.summary }}</p>
           <p class="result-label">MATCHED</p>
           <div class="chips"><span class="chip good" *ngFor="let skill of matchResult.matchedSkills">{{ skill }}</span></div>
           <p class="result-label gap">SKILL GAPS</p>
           <div class="chips"><span class="chip" *ngFor="let skill of matchResult.missingSkills">{{ skill }}</span></div>
+          <p class="result-label gap">NEXT STEPS</p>
+          <ul class="recommendations"><li *ngFor="let recommendation of matchResult.recommendations">{{ recommendation }}</li></ul>
         </div>
       </div>
     </article>
@@ -45,10 +49,7 @@
 
       <div class="empty" *ngIf="applications.length === 0">No applications yet. Add your first one above.</div>
       <div class="application" *ngFor="let application of applications">
-        <div class="application-main">
-          <strong>{{ application.role }}</strong>
-          <span>{{ application.company }}</span>
-        </div>
+        <div class="application-main"><strong>{{ application.role }}</strong><span>{{ application.company }}</span></div>
         <select [ngModel]="application.status" (ngModelChange)="changeStatus(application, $event)">
           <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
         </select>
