@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ApiService, JobApplication, MatchResponse } from './api.service';
+import { ApiService, JobApplication, SemanticMatchResponse } from './api.service';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
   company = '';
   role = '';
   jobUrl = '';
-  matchResult?: MatchResponse;
+  matchResult?: SemanticMatchResponse;
   applications: JobApplication[] = [];
   loadingMatch = false;
   error = '';
@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
     if (!this.resumeText.trim() || !this.jobDescription.trim()) return;
     this.loadingMatch = true;
     this.error = '';
-    this.api.match(this.resumeText, this.jobDescription).subscribe({
+    this.api.semanticMatch(this.resumeText, this.jobDescription).subscribe({
       next: result => {
         this.matchResult = result;
         this.loadingMatch = false;
