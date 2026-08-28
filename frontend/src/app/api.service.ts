@@ -8,6 +8,12 @@ export interface MatchResponse {
   missingSkills: string[];
 }
 
+export interface SemanticMatchResponse extends MatchResponse {
+  engine: string;
+  summary: string;
+  recommendations: string[];
+}
+
 export interface JobApplication {
   id: number;
   company: string;
@@ -25,6 +31,10 @@ export class ApiService {
 
   match(resumeText: string, jobDescription: string): Observable<MatchResponse> {
     return this.http.post<MatchResponse>(`${this.baseUrl}/matches`, { resumeText, jobDescription });
+  }
+
+  semanticMatch(resumeText: string, jobDescription: string): Observable<SemanticMatchResponse> {
+    return this.http.post<SemanticMatchResponse>(`${this.baseUrl}/matches/semantic`, { resumeText, jobDescription });
   }
 
   applications(): Observable<JobApplication[]> {
