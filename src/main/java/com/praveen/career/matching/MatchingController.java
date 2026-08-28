@@ -12,13 +12,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class MatchingController {
 
     private final MatchingService matchingService;
+    private final SemanticMatchingService semanticMatchingService;
 
-    public MatchingController(MatchingService matchingService) {
+    public MatchingController(MatchingService matchingService, SemanticMatchingService semanticMatchingService) {
         this.matchingService = matchingService;
+        this.semanticMatchingService = semanticMatchingService;
     }
 
     @PostMapping
     public ResponseEntity<MatchResponse> match(@Valid @RequestBody MatchRequest request) {
         return ResponseEntity.ok(matchingService.match(request));
+    }
+
+    @PostMapping("/semantic")
+    public ResponseEntity<SemanticMatchResponse> semanticMatch(@Valid @RequestBody MatchRequest request) {
+        return ResponseEntity.ok(semanticMatchingService.analyze(request));
     }
 }
