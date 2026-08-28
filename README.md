@@ -1,20 +1,98 @@
-# Legacy Portfolio Repository
+# Career Intelligence Platform
 
-This repository was an early portfolio experiment and is no longer the primary home for my GitHub portfolio.
+A production-oriented portfolio project for analyzing how a candidate's technical skills align with a job description.
 
-For my current engineering profile, technology focus, and active projects, visit:
+The first milestone provides a **Java 21 + Spring Boot REST API** that extracts recognized technical requirements from a job description, compares them with resume text, and returns a match score plus matched and missing skills.
 
-👉 **[github.com/Praveenpdpk96](https://github.com/Praveenpdpk96)**
+## Why This Project
 
-## Current Engineering Focus
+The goal is to build this incrementally into a full career intelligence platform while demonstrating practical backend engineering: clean APIs, validation, tests, containerization, CI/CD, persistence, event-driven processing, and eventually an Angular frontend and AI-assisted analysis.
 
-- Java and Spring Boot backend development
-- Distributed systems and event-driven architecture
-- Angular and React full-stack applications
-- Kafka and asynchronous messaging
-- AWS and Azure cloud platforms
-- Docker, Kubernetes, and CI/CD automation
-- Data pipelines and enterprise integrations
-- AI-assisted application workflows
+## Current Architecture
 
-> New portfolio projects are being maintained as dedicated repositories rather than mixed into this legacy repository.
+```text
+Client
+  |
+  v
+Spring Boot REST API
+  |
+  v
+Matching Service
+  |
+  +--> Required skill extraction
+  +--> Resume skill matching
+  +--> Match score
+  +--> Missing skill analysis
+```
+
+## Technology
+
+- Java 21
+- Spring Boot
+- Spring Web
+- Jakarta Validation
+- Spring Boot Actuator
+- JUnit 5 / AssertJ
+- Maven
+- Docker
+- GitHub Actions
+
+## API
+
+### Analyze Resume / Job Match
+
+`POST /api/v1/matches`
+
+Example request:
+
+```json
+{
+  "resumeText": "Java Spring Boot AWS Docker",
+  "jobDescription": "Looking for Java, Spring Boot, Kafka and AWS experience"
+}
+```
+
+Example response:
+
+```json
+{
+  "score": 75,
+  "matchedSkills": ["java", "spring boot", "aws"],
+  "missingSkills": ["kafka"]
+}
+```
+
+## Run Locally
+
+Requirements: Java 21 and Maven.
+
+```bash
+mvn spring-boot:run
+```
+
+Run tests:
+
+```bash
+mvn test
+```
+
+## Roadmap
+
+- [x] Spring Boot service foundation
+- [x] Resume/job skill matching API
+- [x] Input validation
+- [x] Unit tests
+- [x] GitHub Actions CI
+- [x] Docker configuration
+- [ ] PostgreSQL persistence
+- [ ] Application tracking service
+- [ ] Kafka event processing
+- [ ] Resume document ingestion
+- [ ] AI-assisted semantic matching
+- [ ] Angular dashboard
+- [ ] Authentication and authorization
+- [ ] Observability and cloud deployment
+
+## Engineering Principles
+
+The project will favor understandable production-style engineering over unnecessary complexity: modular boundaries, automated testing, secure configuration, observable services, and documented architectural decisions.
