@@ -1,6 +1,8 @@
-Hi, I'm Durga Praveen Karthik 👋
+Durga Praveen Karthik
 
-Java Full-Stack Developer building scalable web applications,
-microservices, cloud platforms, and AI-powered developer tools.
+Software Engineer | Java • Spring Boot • Angular • React •
+Microservices • AWS/Azure | Building scalable cloud-native systems
 
-Java • Spring Boot • Angular • React • AWS • Azure • Kafka • PostgreSQL
+📍 St. Paul, MN, USA
+
+🔗 LinkedIn
