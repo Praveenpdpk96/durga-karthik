@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: career
+      POSTGRES_USER: career
+      POSTGRES_PASSWORD: career
+    ports:
+      - "5432:5432"
+    volumes:
+      - career-postgres:/var/lib/postgresql/data
+
+  api:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/career
+      DATABASE_USERNAME: career
+      DATABASE_PASSWORD: career
+    ports:
+      - "8080:8080"
+
+volumes:
+  career-postgres:
