@@ -6,4 +6,8 @@ import java.util.List;
 
 public interface JobApplicationRepository extends JpaRepository<JobApplication, Long> {
     List<JobApplication> findAllByOrderByUpdatedAtDesc();
+
+    boolean existsByCompanyIgnoreCaseAndRoleIgnoreCase(String company, String role);
+
+    boolean existsByCompanyIgnoreCaseAndRoleIgnoreCaseAndIdNot(String company, String role, Long id);
 }
