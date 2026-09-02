@@ -19,8 +19,13 @@ public class JobApplicationService {
 
     @Transactional
     public JobApplication create(CreateApplicationRequest request) {
+        String company = request.company().trim();
+        String role = request.role().trim();
+        if (repository.existsByCompanyIgnoreCaseAndRoleIgnoreCase(company, role)) {
+            throw new DuplicateApplicationException(company, role);
+        }
         ApplicationStatus status = request.status() == null ? ApplicationStatus.APPLIED : request.status();
-        JobApplication saved = repository.save(new JobApplication(request.company(), request.role(), request.jobUrl(), status));
+        JobApplication saved = repository.save(new JobApplication(company, role, normalizeUrl(request.jobUrl()), status));
         eventPublisher.applicationCreated(saved);
         return saved;
     }
@@ -31,11 +36,37 @@ public class JobApplicationService {
     }
 
     @Transactional
+    public JobApplication update(Long id, UpdateApplicationRequest request) {
+        JobApplication application = findById(id);
+        String company = request.company().trim();
+        String role = request.role().trim();
+        if (repository.existsByCompanyIgnoreCaseAndRoleIgnoreCaseAndIdNot(company, role, id)) {
+            throw new DuplicateApplicationException(company, role);
+        }
+        application.updateDetails(company, role, normalizeUrl(request.jobUrl()));
+        return application;
+    }
+
+    @Transactional
     public JobApplication updateStatus(Long id, ApplicationStatus status) {
-        JobApplication application = repository.findById(id)
-                .orElseThrow(() -> new ApplicationNotFoundException(id));
+        JobApplication application = findById(id);
         application.updateStatus(status);
         eventPublisher.applicationStatusChanged(application);
         return application;
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        JobApplication application = findById(id);
+        repository.delete(application);
+    }
+
+    private JobApplication findById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ApplicationNotFoundException(id));
+    }
+
+    private String normalizeUrl(String jobUrl) {
+        return jobUrl == null || jobUrl.isBlank() ? null : jobUrl.trim();
     }
 }
