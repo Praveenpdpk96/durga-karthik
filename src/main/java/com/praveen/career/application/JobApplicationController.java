@@ -28,9 +28,20 @@ public class JobApplicationController {
         return service.findAll();
     }
 
+    @PutMapping("/{id}")
+    public JobApplication update(@PathVariable Long id, @Valid @RequestBody UpdateApplicationRequest request) {
+        return service.update(id, request);
+    }
+
     @PatchMapping("/{id}/status")
     public JobApplication updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
         return service.updateStatus(id, request.status());
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
     }
 
     public record UpdateStatusRequest(@NotNull ApplicationStatus status) {}
