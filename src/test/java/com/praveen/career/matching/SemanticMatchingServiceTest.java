@@ -10,7 +10,7 @@ class SemanticMatchingServiceTest {
                 "Senior Software Engineer with 7 years Java Spring Boot AWS",
                 "Software Engineer. 5+ years required. Java Spring Boot Kafka AWS Kubernetes required"
         ));
-        assertThat(result.engine()).isEqualTo("deterministic-v3");
+        assertThat(result.engine()).isEqualTo("deterministic-v5");
         assertThat(result.missingSkills()).contains("kafka","kubernetes");
         assertThat(result.technicalCoverage()).isBetween(50,80);
         assertThat(result.experienceFit()).isEqualTo(100);
