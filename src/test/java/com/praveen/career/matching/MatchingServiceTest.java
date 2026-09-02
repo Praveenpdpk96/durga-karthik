@@ -20,7 +20,7 @@ class MatchingServiceTest {
         assertThat(response.score()).isEqualTo(74);
         assertThat(response.matchedSkills()).contains("java", "spring boot", "aws");
         assertThat(response.missingSkills()).containsExactly("kafka");
-        assertThat(response.technicalScore()).isEqualTo(75);
+        assertThat(response.technicalCoverage()).isEqualTo(75);
     }
 
     @Test
@@ -31,7 +31,7 @@ class MatchingServiceTest {
         ));
 
         assertThat(response.score()).isEqualTo(20);
-        assertThat(response.technicalScore()).isZero();
+        assertThat(response.technicalCoverage()).isZero();
         assertThat(response.evidenceCount()).isZero();
         assertThat(response.matchedSkills()).isEmpty();
         assertThat(response.missingSkills()).isEmpty();
