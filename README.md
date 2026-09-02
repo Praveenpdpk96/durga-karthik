@@ -2,6 +2,8 @@
 
 A production-oriented full-stack portfolio project for job matching and application intelligence.
 
+**Live Demo:** https://career-intelligence-platform-pccm.onrender.com
+
 Built with **Java 21, Spring Boot, Angular, PostgreSQL, Kafka, Docker, and GitHub Actions**, the platform analyzes technical fit between a resume and job description and tracks applications through the hiring lifecycle.
 
 ## Current Capabilities
@@ -14,7 +16,10 @@ Built with **Java 21, Spring Boot, Angular, PostgreSQL, Kafka, Docker, and GitHu
 - Optional Kafka domain events
 - Responsive Angular dashboard
 - Swagger/OpenAPI documentation
-- Automated backend tests and frontend builds in CI
+- Automated backend tests, frontend builds, and production container validation in CI
+- Docker-based cloud deployment on Render with PostgreSQL
+
+> The live demo runs on Render's free service tier, so the first request after inactivity can take longer while the service wakes up.
 
 ## Architecture
 
@@ -28,7 +33,7 @@ Spring Boot REST API
 Match Engine   Application Service
                   |          |
                   v          v
-             PostgreSQL    Kafka
+             PostgreSQL    Kafka (optional)
 ```
 
 ## Technology
@@ -37,7 +42,7 @@ Match Engine   Application Service
 **Frontend:** Angular 18, TypeScript  
 **Data:** PostgreSQL, H2  
 **Messaging:** Apache Kafka  
-**Platform:** Docker, Docker Compose, GitHub Actions  
+**Platform:** Docker, Docker Compose, Render, GitHub Actions  
 **Quality:** JUnit 5, Mockito, AssertJ, OpenAPI/Swagger, Actuator
 
 ## APIs
@@ -99,11 +104,15 @@ mvn test
 cd frontend && npm run build
 ```
 
-GitHub Actions automatically runs backend tests and validates the Angular production build.
+GitHub Actions runs backend tests, validates the Angular production build, and builds the production Docker image.
 
 ## Event-Driven Workflow
 
-When Kafka events are enabled, application creation and status changes publish domain events to `career.application-events`. This provides an integration point for analytics, notifications, recommendations, and audit processing without coupling those capabilities to the core application service.
+When Kafka events are enabled, application creation and status changes publish domain events to `career.application-events`. For the hosted demo, Kafka events are disabled and a no-op publisher preserves the same service boundary without requiring a Kafka broker. This provides a clean integration point for analytics, notifications, recommendations, and audit processing.
+
+## Deployment
+
+The production image uses a multi-stage Docker build: Angular is compiled first, the generated frontend is packaged into the Spring Boot application, and the final runtime image runs on Java 21. The live Render service connects to PostgreSQL through environment-provided database configuration and exposes Actuator health checks for deployment monitoring.
 
 ## Roadmap
 
@@ -117,11 +126,11 @@ When Kafka events are enabled, application creation and status changes publish d
 - [x] Docker environment
 - [x] GitHub Actions CI
 - [x] OpenAPI / Swagger documentation
+- [x] Cloud deployment
 - [ ] Resume PDF/DOCX ingestion
 - [ ] Provider-backed LLM semantic analysis
 - [ ] Authentication and authorization
 - [ ] Metrics, tracing, and structured logging
-- [ ] Cloud deployment
 
 ## Engineering Principles
 
