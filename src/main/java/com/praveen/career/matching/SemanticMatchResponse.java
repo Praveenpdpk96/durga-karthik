@@ -8,6 +8,12 @@ public record SemanticMatchResponse(
         int score,
         Set<String> matchedSkills,
         Set<String> missingSkills,
+        Set<String> requiredSkills,
+        Set<String> preferredSkills,
+        int technicalCoverage,
+        int experienceFit,
+        int roleFit,
+        int evidenceCount,
         String summary,
         List<String> recommendations
 ) {}
