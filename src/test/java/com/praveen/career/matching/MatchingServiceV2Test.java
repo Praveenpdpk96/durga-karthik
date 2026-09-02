@@ -4,22 +4,27 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MatchingServiceV2Test {
-    private final MatchingService service = new MatchingService();
-
-    @Test
-    void detectsBroaderTechnicalRequirementsAndMissingSkills() {
-        MatchResponse result = service.match(new MatchRequest(
-                "Java Spring Boot AWS PostgreSQL Docker microservices",
-                "Java Spring Boot AWS Kafka Kubernetes PostgreSQL Docker microservices required"
+    private final MatchingService service=new MatchingService();
+    @Test void detectsBroaderRequirementsAndMissingSkills(){
+        MatchResponse result=service.match(new MatchRequest(
+                "Software Engineer 7 years Java Spring Boot AWS PostgreSQL Docker microservices",
+                "Software Engineer 5+ years required Java Spring Boot AWS Kafka Kubernetes PostgreSQL Docker microservices"
         ));
-        assertThat(result.matchedSkills()).contains("java", "spring boot", "aws", "postgresql", "docker", "microservices");
-        assertThat(result.missingSkills()).contains("kafka", "kubernetes");
-        assertThat(result.score()).isBetween(70, 80);
+        assertThat(result.matchedSkills()).contains("java","spring boot","aws","postgresql","docker","microservices");
+        assertThat(result.missingSkills()).contains("kafka","kubernetes");
+        assertThat(result.score()).isBetween(70,90);
+        assertThat(result.technicalCoverage()).isBetween(70,80);
     }
-
-    @Test
-    void doesNotClaimPerfectFitFromSingleDetectedKeyword() {
-        MatchResponse result = service.match(new MatchRequest("AWS", "Experience with AWS"));
-        assertThat(result.score()).isEqualTo(70);
+    @Test void sparseEvidenceCannotClaimPerfectFit(){
+        MatchResponse result=service.match(new MatchRequest("AWS","Experience with AWS"));
+        assertThat(result.score()).isLessThanOrEqualTo(65);
+        assertThat(result.evidenceCount()).isLessThan(3);
+    }
+    @Test void evenKeywordCompleteMatchDoesNotClaimCertainty(){
+        MatchResponse result=service.match(new MatchRequest(
+                "Software Engineer 8 years Java Spring Boot AWS Kafka Kubernetes",
+                "Software Engineer 5 years Java Spring Boot AWS Kafka Kubernetes"
+        ));
+        assertThat(result.score()).isLessThanOrEqualTo(96);
     }
 }
