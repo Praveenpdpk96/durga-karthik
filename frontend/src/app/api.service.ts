@@ -47,7 +47,15 @@ export class ApiService {
     });
   }
 
+  updateApplication(id: number, company: string, role: string, jobUrl: string): Observable<JobApplication> {
+    return this.http.put<JobApplication>(`${this.baseUrl}/applications/${id}`, { company, role, jobUrl });
+  }
+
   updateStatus(id: number, status: string): Observable<JobApplication> {
     return this.http.patch<JobApplication>(`${this.baseUrl}/applications/${id}/status`, { status });
+  }
+
+  deleteApplication(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/applications/${id}`);
   }
 }
