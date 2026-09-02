@@ -58,6 +58,12 @@ public class JobApplication {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 
+    public void updateDetails(String company, String role, String jobUrl) {
+        this.company = company;
+        this.role = role;
+        this.jobUrl = jobUrl;
+    }
+
     public void updateStatus(ApplicationStatus status) {
         this.status = status;
     }
