@@ -1,82 +1,17 @@
 <main class="shell">
-  <header class="hero">
-    <div>
-      <p class="eyebrow">CAREER INTELLIGENCE</p>
-      <h1>Turn job searching into a measurable engineering workflow.</h1>
-      <p class="subtitle">Analyze technical fit, identify missing skills, get actionable recommendations, and track every application from first save to final decision.</p>
-    </div>
-    <div class="hero-badge"><span>●</span> Spring Boot + Angular</div>
-  </header>
-
-  <p class="alert" *ngIf="error">{{ error }}</p>
-
-  <section class="stats">
-    <article><strong>{{ applications.length }}</strong><span>Applications tracked</span></article>
-    <article><strong>{{ matchResult?.score ?? '—' }}<small *ngIf="matchResult">%</small></strong><span>Latest match score</span></article>
-    <article><strong>{{ matchResult?.missingSkills?.length ?? '—' }}</strong><span>Skill gaps detected</span></article>
-  </section>
-
-  <section class="grid">
-    <article class="panel matcher">
-      <div class="panel-heading"><div><p class="eyebrow">MATCH ENGINE</p><h2>Resume vs. Job</h2></div><span class="number">01</span></div>
-      <label>Resume text<textarea [(ngModel)]="resumeText" placeholder="Paste the relevant resume content..."></textarea></label>
-      <label>Job description<textarea [(ngModel)]="jobDescription" placeholder="Paste a job description..."></textarea></label>
-      <button (click)="analyze()" [disabled]="loadingMatch">{{ loadingMatch ? 'Analyzing…' : 'Analyze match' }}</button>
-
-      <div class="result" *ngIf="matchResult">
-        <div class="score"><span>{{ matchResult.score }}</span><small>/ 100</small></div>
-        <div>
-          <p class="result-label">ANALYSIS</p>
-          <p class="analysis-summary">{{ matchResult.summary }}</p>
-          <p class="result-label">MATCHED</p>
-          <div class="chips"><span class="chip good" *ngFor="let skill of matchResult.matchedSkills">{{ skill }}</span></div>
-          <p class="result-label gap">SKILL GAPS</p>
-          <div class="chips"><span class="chip" *ngFor="let skill of matchResult.missingSkills">{{ skill }}</span></div>
-          <p class="result-label gap">NEXT STEPS</p>
-          <ul class="recommendations"><li *ngFor="let recommendation of matchResult.recommendations">{{ recommendation }}</li></ul>
-        </div>
-      </div>
-    </article>
-
-    <article class="panel tracker">
-      <div class="panel-heading"><div><p class="eyebrow">PIPELINE</p><h2>Application Tracker</h2></div><span class="number">02</span></div>
-      <div class="application-form">
-        <input [(ngModel)]="company" placeholder="Company">
-        <input [(ngModel)]="role" placeholder="Role">
-        <input [(ngModel)]="jobUrl" placeholder="Job URL (optional)">
-        <button (click)="addApplication()">Add application</button>
-      </div>
-
-      <div class="empty" *ngIf="applications.length === 0">No applications yet. Add your first one above.</div>
-      <div class="application" *ngFor="let application of applications">
-        <ng-container *ngIf="editingId !== application.id; else editForm">
-          <div class="application-main">
-            <strong>{{ application.role }}</strong>
-            <span>{{ application.company }}</span>
-            <a *ngIf="application.jobUrl" [href]="application.jobUrl" target="_blank" rel="noopener">View job</a>
-          </div>
-          <div class="application-actions">
-            <select [ngModel]="application.status" (ngModelChange)="changeStatus(application, $event)">
-              <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
-            </select>
-            <button class="secondary" (click)="startEdit(application)">Edit</button>
-            <button class="danger" (click)="deleteApplication(application)">Delete</button>
-          </div>
-        </ng-container>
-        <ng-template #editForm>
-          <div class="edit-form">
-            <input [(ngModel)]="editCompany" placeholder="Company">
-            <input [(ngModel)]="editRole" placeholder="Role">
-            <input [(ngModel)]="editJobUrl" placeholder="Job URL (optional)">
-            <div class="edit-actions">
-              <button (click)="saveEdit(application)">Save</button>
-              <button class="secondary" (click)="cancelEdit()">Cancel</button>
-            </div>
-          </div>
-        </ng-template>
-      </div>
-    </article>
-  </section>
-
-  <footer><span>Java 21</span><span>Spring Boot</span><span>PostgreSQL</span><span>Kafka</span><span>Angular</span><span>Docker</span></footer>
+<header class="hero"><div><p class="eyebrow">CAREER INTELLIGENCE</p><h1>Turn job searching into a measurable engineering workflow.</h1><p class="subtitle">Upload a resume, analyze technical fit, identify missing skills, get actionable recommendations, and track applications from first save to final decision.</p></div><div class="hero-badge"><span>●</span> Spring Boot + Angular</div></header>
+<p class="alert" *ngIf="error">{{ error }}</p>
+<section class="stats"><article><strong>{{ applications.length }}</strong><span>Applications tracked</span></article><article><strong>{{ matchResult?.score ?? '—' }}<small *ngIf="matchResult">%</small></strong><span>Latest match score</span></article><article><strong>{{ matchResult?.missingSkills?.length ?? '—' }}</strong><span>Skill gaps detected</span></article></section>
+<section class="grid">
+<article class="panel matcher">
+<div class="panel-heading"><div><p class="eyebrow">MATCH ENGINE</p><h2>Resume vs. Job</h2></div><span class="number">01</span></div>
+<div class="upload-box"><div><strong>Resume document</strong><span>PDF or DOCX · max 5 MB</span></div><label class="upload-button"><input type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" (change)="uploadResume($event)">{{ loadingResume ? 'Reading…' : 'Upload resume' }}</label></div>
+<p class="file-meta" *ngIf="resumeFileName">{{ resumeFileName }}</p>
+<label>Resume text<textarea [(ngModel)]="resumeText" placeholder="Upload a resume above or paste the relevant resume content..."></textarea></label>
+<label>Job description<textarea [(ngModel)]="jobDescription" placeholder="Paste a job description..."></textarea></label>
+<button (click)="analyze()" [disabled]="loadingMatch || loadingResume">{{ loadingMatch ? 'Analyzing…' : 'Analyze match' }}</button>
+<div class="result" *ngIf="matchResult"><div class="score"><span>{{ matchResult.score }}</span><small>/ 100</small></div><div><p class="result-label">ANALYSIS</p><p class="analysis-summary">{{ matchResult.summary }}</p><p class="result-label">MATCHED</p><div class="chips"><span class="chip good" *ngFor="let skill of matchResult.matchedSkills">{{ skill }}</span></div><p class="result-label gap">SKILL GAPS</p><div class="chips"><span class="chip" *ngFor="let skill of matchResult.missingSkills">{{ skill }}</span></div><p class="result-label gap">NEXT STEPS</p><ul class="recommendations"><li *ngFor="let recommendation of matchResult.recommendations">{{ recommendation }}</li></ul></div></div>
+</article>
+<article class="panel tracker"><div class="panel-heading"><div><p class="eyebrow">PIPELINE</p><h2>Application Tracker</h2></div><span class="number">02</span></div><div class="application-form"><input [(ngModel)]="company" placeholder="Company"><input [(ngModel)]="role" placeholder="Role"><input [(ngModel)]="jobUrl" placeholder="Job URL (optional)"><button (click)="addApplication()">Add application</button></div><div class="empty" *ngIf="applications.length === 0">No applications yet. Add your first one above.</div><div class="application" *ngFor="let application of applications"><ng-container *ngIf="editingId !== application.id; else editForm"><div class="application-main"><strong>{{ application.role }}</strong><span>{{ application.company }}</span><a *ngIf="application.jobUrl" [href]="application.jobUrl" target="_blank" rel="noopener">View job</a></div><div class="application-actions"><select [ngModel]="application.status" (ngModelChange)="changeStatus(application, $event)"><option *ngFor="let status of statuses" [value]="status">{{ status }}</option></select><button class="secondary" (click)="startEdit(application)">Edit</button><button class="danger" (click)="deleteApplication(application)">Delete</button></div></ng-container><ng-template #editForm><div class="edit-form"><input [(ngModel)]="editCompany" placeholder="Company"><input [(ngModel)]="editRole" placeholder="Role"><input [(ngModel)]="editJobUrl" placeholder="Job URL (optional)"><div class="edit-actions"><button (click)="saveEdit(application)">Save</button><button class="secondary" (click)="cancelEdit()">Cancel</button></div></div></ng-template></div></article>
+</section><footer><span>Java 21</span><span>Spring Boot</span><span>PostgreSQL</span><span>Kafka</span><span>Angular</span><span>PDF/DOCX</span><span>Docker</span></footer>
 </main>
