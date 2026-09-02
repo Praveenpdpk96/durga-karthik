@@ -1,14 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ApiService, JobApplication, SemanticMatchResponse } from './api.service';
+import { ApiService, JobApplication, LlmAnalysisResponse, SemanticMatchResponse } from './api.service';
 
 @Component({ selector: 'app-root', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './app.component.html' })
 export class AppComponent implements OnInit {
   private readonly api = inject(ApiService);
   resumeText=''; jobDescription=''; company=''; role=''; jobUrl='';
-  matchResult?: SemanticMatchResponse; applications: JobApplication[]=[];
-  loadingMatch=false; loadingResume=false; error=''; resumeFileName='';
+  matchResult?: SemanticMatchResponse; aiResult?: LlmAnalysisResponse; applications: JobApplication[]=[];
+  loadingMatch=false; loadingAi=false; loadingResume=false; error=''; resumeFileName='';
   editingId?:number; editCompany=''; editRole=''; editJobUrl='';
   readonly statuses=['SAVED','APPLIED','ASSESSMENT','INTERVIEW','OFFER','REJECTED','WITHDRAWN'];
   ngOnInit():void { this.loadApplications(); }
@@ -16,12 +16,10 @@ export class AppComponent implements OnInit {
   uploadResume(event: Event):void {
     const input=event.target as HTMLInputElement; const file=input.files?.[0]; if(!file)return;
     this.loadingResume=true; this.error=''; this.resumeFileName=file.name;
-    this.api.extractResume(file).subscribe({
-      next:doc=>{this.resumeText=doc.text;this.resumeFileName=`${doc.fileName} · ${doc.fileType} · ${doc.characters.toLocaleString()} characters`;this.loadingResume=false;},
-      error:r=>{this.error=r.error?.message ?? 'Could not read this resume file.';this.loadingResume=false;this.resumeFileName='';}
-    });
+    this.api.extractResume(file).subscribe({next:doc=>{this.resumeText=doc.text;this.resumeFileName=`${doc.fileName} · ${doc.fileType} · ${doc.characters.toLocaleString()} characters`;this.loadingResume=false;},error:r=>{this.error=r.error?.message ?? 'Could not read this resume file.';this.loadingResume=false;this.resumeFileName='';}});
   }
-  analyze():void { if(!this.resumeText.trim()||!this.jobDescription.trim())return;this.loadingMatch=true;this.error='';this.api.semanticMatch(this.resumeText,this.jobDescription).subscribe({next:r=>{this.matchResult=r;this.loadingMatch=false;},error:()=>{this.error='Could not reach the matching API.';this.loadingMatch=false;}}); }
+  analyze():void { if(!this.resumeText.trim()||!this.jobDescription.trim())return;this.loadingMatch=true;this.error='';this.aiResult=undefined;this.api.semanticMatch(this.resumeText,this.jobDescription).subscribe({next:r=>{this.matchResult=r;this.loadingMatch=false;},error:()=>{this.error='Could not reach the matching API.';this.loadingMatch=false;}}); }
+  analyzeWithAi():void {if(!this.resumeText.trim()||!this.jobDescription.trim())return;this.loadingAi=true;this.error='';this.api.aiMatch(this.resumeText,this.jobDescription).subscribe({next:r=>{this.aiResult=r;this.loadingAi=false;},error:()=>{this.error='AI analysis could not be completed.';this.loadingAi=false;}});}
   addApplication():void { if(!this.company.trim()||!this.role.trim())return;this.error='';this.api.createApplication(this.company,this.role,this.jobUrl).subscribe({next:a=>{this.applications=[a,...this.applications];this.company='';this.role='';this.jobUrl='';},error:r=>this.error=r.status===409?'That company and role are already in your tracker.':'Could not save the application.'}); }
   startEdit(a:JobApplication):void {this.editingId=a.id;this.editCompany=a.company;this.editRole=a.role;this.editJobUrl=a.jobUrl??'';this.error='';}
   cancelEdit():void {this.editingId=undefined;}
