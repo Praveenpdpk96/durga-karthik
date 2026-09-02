@@ -1,7 +1,6 @@
 package com.praveen.career.matching;
 
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,46 +13,50 @@ public class MatchingService {
     }
     private static final Pattern YEARS=Pattern.compile("(\\d{1,2})\\+?\\s*(?:years?|yrs?)",Pattern.CASE_INSENSITIVE);
     private static final List<String> PREFERRED_MARKERS=List.of("preferred","nice to have","bonus","plus","desired");
-    private static final List<String> REQUIRED_MARKERS=List.of("required","must have","minimum qualification","basic qualification","requirements","you will need");
 
     public MatchResponse match(MatchRequest request){
         String resume=normalize(request.resumeText()),job=normalize(request.jobDescription());
         Set<String> jobSkills=extract(job),resumeSkills=extract(resume);
         Set<String> preferred=classify(job,jobSkills,PREFERRED_MARKERS);
         Set<String> required=new LinkedHashSet<>(jobSkills); required.removeAll(preferred);
-        // If the posting does not label requirements clearly, all recognized technical skills are treated as core evidence.
         if(required.isEmpty()&&!jobSkills.isEmpty()) required.addAll(jobSkills);
         Set<String> matched=new LinkedHashSet<>(jobSkills); matched.retainAll(resumeSkills);
         Set<String> missing=new LinkedHashSet<>(jobSkills); missing.removeAll(resumeSkills);
 
-        double requiredCoverage=coverage(required,resumeSkills);
-        double preferredCoverage=coverage(preferred,resumeSkills);
-        int technical=(int)Math.round(requiredCoverage*85+preferredCoverage*15);
-        if(preferred.isEmpty()) technical=(int)Math.round(requiredCoverage*100);
+        double requiredCoverage=coverage(required,resumeSkills), preferredCoverage=coverage(preferred,resumeSkills);
+        int technical=(int)Math.round(preferred.isEmpty()?requiredCoverage*100:requiredCoverage*80+preferredCoverage*20);
 
-        int requiredYears=maxYears(job); int resumeYears=maxYears(resume);
-        int experienceFit=requiredYears==0?70:Math.min(100,(int)Math.round(resumeYears*100.0/requiredYears));
+        int requiredYears=maxYears(job), resumeYears=resumeYears(resume);
+        int experienceFit;
+        if(requiredYears==0) experienceFit=72; // neutral: no explicit years requirement is not proof of a perfect experience match
+        else if(resumeYears==0) experienceFit=45;
+        else experienceFit=Math.min(100,(int)Math.round(resumeYears*100.0/requiredYears));
+
         int roleFit=roleFit(resume,job);
-        int evidence=jobSkills.size()+(requiredYears>0?1:0)+(roleFit!=70?1:0);
+        int responsibilityFit=responsibilityFit(resume,job);
+        int evidence=jobSkills.size()+(requiredYears>0?1:0)+(roleFit!=65?1:0)+responsibilityEvidence(job);
 
-        int score=(int)Math.round(technical*.72+experienceFit*.18+roleFit*.10);
-        // Confidence penalty: a broad fit claim requires enough evidence from the posting.
-        if(evidence<3) score=Math.min(score,65); else if(evidence<5) score=Math.min(score,82);
-        // 100 should be exceptional even for keyword-complete resumes because this engine cannot assess interview depth or recency.
-        score=Math.min(score,96);
+        // V5 deliberately separates keyword coverage from experience, role and responsibility evidence.
+        int score=(int)Math.round(technical*.55+experienceFit*.18+roleFit*.12+responsibilityFit*.15);
+        if(jobSkills.size()<3) score-=8;
+        if(requiredYears==0) score-=4;
+        if(missing.size()>=3) score-=Math.min(12,missing.size()*2);
+        if(evidence<4) score=Math.min(score,68); else if(evidence<7) score=Math.min(score,84);
+        score=Math.max(0,Math.min(score,97));
         return new MatchResponse(score,matched,missing,required,preferred,technical,experienceFit,roleFit,evidence);
     }
 
-    private Set<String> classify(String job,Set<String> skills,List<String> markers){
-        Set<String> result=new LinkedHashSet<>();
-        for(String skill:skills){int pos=job.indexOf(skill); if(pos<0)continue; int from=Math.max(0,pos-100),to=Math.min(job.length(),pos+100); String window=job.substring(from,to); if(markers.stream().anyMatch(window::contains))result.add(skill);}
-        return result;
-    }
+    private Set<String> classify(String job,Set<String> skills,List<String> markers){Set<String> result=new LinkedHashSet<>();for(String skill:skills){int pos=job.indexOf(skill);if(pos<0)continue;int from=Math.max(0,pos-120),to=Math.min(job.length(),pos+120);String window=job.substring(from,to);if(markers.stream().anyMatch(window::contains))result.add(skill);}return result;}
     private int roleFit(String resume,String job){
-        List<String> families=List.of("backend","front end","frontend","full stack","fullstack","software engineer","software developer","data engineer","devops","platform engineer");
-        Set<String> jobRoles=new HashSet<>(),resumeRoles=new HashSet<>(); for(String f:families){if(job.contains(f))jobRoles.add(f.replace("front end","frontend").replace("fullstack","full stack"));if(resume.contains(f))resumeRoles.add(f.replace("front end","frontend").replace("fullstack","full stack"));}
-        if(jobRoles.isEmpty())return 70; jobRoles.retainAll(resumeRoles); return jobRoles.isEmpty()?45:100;
+        List<String> families=List.of("backend","frontend","front end","full stack","fullstack","software engineer","software developer","data engineer","devops","platform engineer","site reliability","mobile","machine learning","security engineer");
+        Set<String> j=new HashSet<>(),r=new HashSet<>();for(String f:families){String c=f.replace("front end","frontend").replace("fullstack","full stack");if(job.contains(f))j.add(c);if(resume.contains(f))r.add(c);}if(j.isEmpty())return 65;j.retainAll(r);return j.isEmpty()?35:92;
     }
+    private int responsibilityFit(String resume,String job){
+        List<String> signals=List.of("architecture","architect","design","distributed","production","scalability","scale","reliability","performance","mentor","lead","ownership","on call","incident","security","testing","deployment","data pipeline","cloud");
+        int requested=0,matched=0;for(String s:signals)if(job.contains(s)){requested++;if(resume.contains(s))matched++;}if(requested==0)return 65;return (int)Math.round(matched*100.0/requested);
+    }
+    private int responsibilityEvidence(String job){return (int)List.of("architecture","design","production","scalability","reliability","performance","mentor","lead","ownership","security","testing","deployment").stream().filter(job::contains).count();}
+    private int resumeYears(String resume){int stated=maxYears(resume);if(stated>0)return stated;return 0;}
     private int maxYears(String text){Matcher m=YEARS.matcher(text);int max=0;while(m.find())max=Math.max(max,Integer.parseInt(m.group(1)));return max;}
     private double coverage(Set<String> target,Set<String> resume){if(target.isEmpty())return 0;long n=target.stream().filter(resume::contains).count();return n*1.0/target.size();}
     private Set<String> extract(String text){Set<String> found=new LinkedHashSet<>();SKILLS.forEach((canonical,aliases)->{if(aliases.stream().anyMatch(a->containsPhrase(text,a)))found.add(canonical);});return found;}
