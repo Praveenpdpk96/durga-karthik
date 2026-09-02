@@ -49,10 +49,31 @@
 
       <div class="empty" *ngIf="applications.length === 0">No applications yet. Add your first one above.</div>
       <div class="application" *ngFor="let application of applications">
-        <div class="application-main"><strong>{{ application.role }}</strong><span>{{ application.company }}</span></div>
-        <select [ngModel]="application.status" (ngModelChange)="changeStatus(application, $event)">
-          <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
-        </select>
+        <ng-container *ngIf="editingId !== application.id; else editForm">
+          <div class="application-main">
+            <strong>{{ application.role }}</strong>
+            <span>{{ application.company }}</span>
+            <a *ngIf="application.jobUrl" [href]="application.jobUrl" target="_blank" rel="noopener">View job</a>
+          </div>
+          <div class="application-actions">
+            <select [ngModel]="application.status" (ngModelChange)="changeStatus(application, $event)">
+              <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+            </select>
+            <button class="secondary" (click)="startEdit(application)">Edit</button>
+            <button class="danger" (click)="deleteApplication(application)">Delete</button>
+          </div>
+        </ng-container>
+        <ng-template #editForm>
+          <div class="edit-form">
+            <input [(ngModel)]="editCompany" placeholder="Company">
+            <input [(ngModel)]="editRole" placeholder="Role">
+            <input [(ngModel)]="editJobUrl" placeholder="Job URL (optional)">
+            <div class="edit-actions">
+              <button (click)="saveEdit(application)">Save</button>
+              <button class="secondary" (click)="cancelEdit()">Cancel</button>
+            </div>
+          </div>
+        </ng-template>
       </div>
     </article>
   </section>
