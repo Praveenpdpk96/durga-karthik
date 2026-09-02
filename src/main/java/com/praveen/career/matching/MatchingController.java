@@ -13,10 +13,12 @@ public class MatchingController {
 
     private final MatchingService matchingService;
     private final SemanticMatchingService semanticMatchingService;
+    private final LlmMatchingService llmMatchingService;
 
-    public MatchingController(MatchingService matchingService, SemanticMatchingService semanticMatchingService) {
+    public MatchingController(MatchingService matchingService, SemanticMatchingService semanticMatchingService, LlmMatchingService llmMatchingService) {
         this.matchingService = matchingService;
         this.semanticMatchingService = semanticMatchingService;
+        this.llmMatchingService = llmMatchingService;
     }
 
     @PostMapping
@@ -27,5 +29,10 @@ public class MatchingController {
     @PostMapping("/semantic")
     public ResponseEntity<SemanticMatchResponse> semanticMatch(@Valid @RequestBody MatchRequest request) {
         return ResponseEntity.ok(semanticMatchingService.analyze(request));
+    }
+
+    @PostMapping("/ai")
+    public ResponseEntity<LlmAnalysisResponse> aiMatch(@Valid @RequestBody MatchRequest request) {
+        return ResponseEntity.ok(llmMatchingService.analyze(request));
     }
 }
