@@ -21,6 +21,10 @@ export class AppComponent implements OnInit {
   applications: JobApplication[] = [];
   loadingMatch = false;
   error = '';
+  editingId?: number;
+  editCompany = '';
+  editRole = '';
+  editJobUrl = '';
 
   readonly statuses = ['SAVED', 'APPLIED', 'ASSESSMENT', 'INTERVIEW', 'OFFER', 'REJECTED', 'WITHDRAWN'];
 
@@ -46,6 +50,7 @@ export class AppComponent implements OnInit {
 
   addApplication(): void {
     if (!this.company.trim() || !this.role.trim()) return;
+    this.error = '';
     this.api.createApplication(this.company, this.role, this.jobUrl).subscribe({
       next: application => {
         this.applications = [application, ...this.applications];
@@ -53,7 +58,42 @@ export class AppComponent implements OnInit {
         this.role = '';
         this.jobUrl = '';
       },
-      error: () => this.error = 'Could not save the application.'
+      error: response => this.error = response.status === 409
+        ? 'That company and role are already in your tracker.'
+        : 'Could not save the application.'
+    });
+  }
+
+  startEdit(application: JobApplication): void {
+    this.editingId = application.id;
+    this.editCompany = application.company;
+    this.editRole = application.role;
+    this.editJobUrl = application.jobUrl ?? '';
+    this.error = '';
+  }
+
+  cancelEdit(): void {
+    this.editingId = undefined;
+  }
+
+  saveEdit(application: JobApplication): void {
+    if (!this.editCompany.trim() || !this.editRole.trim()) return;
+    this.api.updateApplication(application.id, this.editCompany, this.editRole, this.editJobUrl).subscribe({
+      next: updated => {
+        this.applications = this.applications.map(item => item.id === updated.id ? updated : item);
+        this.editingId = undefined;
+      },
+      error: response => this.error = response.status === 409
+        ? 'Another application with that company and role already exists.'
+        : 'Could not update the application.'
+    });
+  }
+
+  deleteApplication(application: JobApplication): void {
+    if (!window.confirm(`Delete ${application.role} at ${application.company}?`)) return;
+    this.api.deleteApplication(application.id).subscribe({
+      next: () => this.applications = this.applications.filter(item => item.id !== application.id),
+      error: () => this.error = 'Could not delete the application.'
     });
   }
 
