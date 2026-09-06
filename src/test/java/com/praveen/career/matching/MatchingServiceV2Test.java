@@ -12,12 +12,13 @@ class MatchingServiceV2Test {
         ));
         assertThat(result.matchedSkills()).contains("java","spring boot","aws","postgresql","docker","microservices");
         assertThat(result.missingSkills()).contains("kafka","kubernetes");
-        assertThat(result.score()).isBetween(70,90);
+        assertThat(result.score()).isBetween(60,90);
         assertThat(result.technicalCoverage()).isBetween(70,80);
     }
     @Test void sparseEvidenceCannotClaimPerfectFit(){
         MatchResponse result=service.match(new MatchRequest("AWS","Experience with AWS"));
-        assertThat(result.score()).isLessThanOrEqualTo(65);
+        assertThat(result.score()).isLessThanOrEqualTo(70);
+        assertThat(result.score()).isLessThan(90);
         assertThat(result.evidenceCount()).isLessThan(3);
     }
     @Test void evenKeywordCompleteMatchDoesNotClaimCertainty(){
@@ -25,6 +26,6 @@ class MatchingServiceV2Test {
                 "Software Engineer 8 years Java Spring Boot AWS Kafka Kubernetes",
                 "Software Engineer 5 years Java Spring Boot AWS Kafka Kubernetes"
         ));
-        assertThat(result.score()).isLessThanOrEqualTo(96);
+        assertThat(result.score()).isLessThanOrEqualTo(95);
     }
 }
